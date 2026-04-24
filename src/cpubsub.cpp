@@ -23,7 +23,7 @@ static bool cpubsub_has_config(void) {
 	return cfg != NULL && cfg->host != NULL && cfg->host[0] != '\0';
 }
 
-static void on_message(char *topic, byte *payload, uint16_t length) {
+static void on_message(char *topic, byte *payload, unsigned int length) {
 	for (uint8_t i = 0; i < subscription_count; i++) {
 		if (strcmp(topic, subscriptions[i].topic) == 0) {
 			subscriptions[i].handler(payload, length);
