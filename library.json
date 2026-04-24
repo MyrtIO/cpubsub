@@ -1,0 +1,10 @@
+{
+    "name": "CPubSub",
+    "version": "1.0.0",
+    "description": "C wrapper for PubSubClient",
+    "dependencies": {
+        "knolleary/PubSubClient": "2.8"
+    },
+    "frameworks": "Arduino",
+    "platforms": "*"
+}
