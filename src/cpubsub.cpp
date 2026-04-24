@@ -2,16 +2,16 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-struct mqtt_subscription_t {
+struct cpubsub_subscription_t {
 	const char *topic;
-	mqtt_handler_t handler;
+	cpubsub_handler_t handler;
 };
 
 static WiFiClient wifi_client;
 static PubSubClient client(wifi_client);
 
-static const mqtt_config_t *cfg;
-static mqtt_subscription_t subscriptions[CPUBSUB_MAX_SUBSCRIPTIONS];
+static const cpubsub_config_t *cfg;
+static cpubsub_subscription_t subscriptions[CPUBSUB_MAX_SUBSCRIPTIONS];
 static uint8_t subscription_count = 0;
 static unsigned long last_connect_attempt = 0;
 static bool was_connected = false;
@@ -19,7 +19,7 @@ static bool was_connected = false;
 static const char *lwt_topic = NULL;
 static const char *lwt_message = NULL;
 
-static bool mqtt_has_config(void) {
+static bool cpubsub_has_config(void) {
 	return cfg != NULL && cfg->host != NULL && cfg->host[0] != '\0';
 }
 
@@ -38,14 +38,14 @@ static void resubscribe_all(void) {
 	}
 }
 
-void mqtt_init(const mqtt_config_t *c) {
+void cpubsub_init(const cpubsub_config_t *c) {
 	cfg = c;
 	client.setServer(cfg->host, cfg->port);
 	client.setBufferSize(cfg->buffer_size);
 	client.setCallback(on_message);
 }
 
-void mqtt_reconfigure(const mqtt_config_t *c) {
+void cpubsub_reconfigure(const cpubsub_config_t *c) {
 	cfg = c;
 	client.disconnect();
 	client.setServer(cfg->host, cfg->port);
@@ -54,19 +54,19 @@ void mqtt_reconfigure(const mqtt_config_t *c) {
 	last_connect_attempt = 0;
 }
 
-void mqtt_disconnect(void) {
+void cpubsub_disconnect(void) {
 	client.disconnect();
 	was_connected = false;
 	last_connect_attempt = 0;
 }
 
-void mqtt_set_lwt(const char *topic, const char *message) {
+void cpubsub_set_lwt(const char *topic, const char *message) {
 	lwt_topic = topic;
 	lwt_message = message;
 }
 
-void mqtt_loop(void) {
-	if (!mqtt_has_config()) {
+void cpubsub_loop(void) {
+	if (!cpubsub_has_config()) {
 		if (client.connected()) {
 			client.disconnect();
 		}
@@ -111,7 +111,7 @@ void mqtt_loop(void) {
 	}
 }
 
-void mqtt_subscribe(const char *topic, mqtt_handler_t handler) {
+void cpubsub_subscribe(const char *topic, cpubsub_handler_t handler) {
 	if (subscription_count >= CPUBSUB_MAX_SUBSCRIPTIONS) {
 		return;
 	}
@@ -124,13 +124,13 @@ void mqtt_subscribe(const char *topic, mqtt_handler_t handler) {
 	}
 }
 
-void mqtt_publish(const char *topic, const char *payload, bool retain) {
+void cpubsub_publish(const char *topic, const char *payload, bool retain) {
 	if (!client.connected()) {
 		return;
 	}
 	client.publish(topic, payload, retain);
 }
 
-bool mqtt_is_connected(void) {
+bool cpubsub_is_connected(void) {
 	return client.connected();
 }
